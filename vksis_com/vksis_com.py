@@ -22,7 +22,6 @@ class Application(Frame):
         self.__createWidgets()
         self.flPortsOpen = False
 
-
     def __del__(self):
         self.destroy()
         self.quit()
@@ -66,10 +65,14 @@ class Application(Frame):
     def openPortsEvent(self):
         stationAddr =  self.stationsCombo.get()
         isMonitor = self.stations[0] == int(stationAddr)
-        self.station.run(self.stationsCombo.get(),isMonitor,self.portsDict[int(stationAddr)])
-        self.openPortLabel['text'] = 'opened: ' + stationAddr
-        self.flPortsOpen = True
-        self.parallelShowPortData()
+        try:
+            self.station.run(self.stationsCombo.get(),isMonitor,self.portsDict[int(stationAddr)])
+            self.openPortLabel['text'] = 'opened: ' + stationAddr
+            self.flPortsOpen = True
+            self.parallelShowPortData()
+            self.errorLabel['text'] = 'no errors'
+        except serial.SerialException as e:
+            self.errorLabel['text'] = e 
 
     def sendEvent(self):
         try:
@@ -78,7 +81,7 @@ class Application(Frame):
             msg = self.textbox.get('1.0',END)
             self.station.send(int(self.addressCombo.get()),msg.encode('utf-8'))
             #all is clear
-            self.errorLabel['text'] = ''
+            self.errorLabel['text'] = 'no errors'
         except (serial.SerialException, AddrError) as e:
             self.errorLabel['text'] = e
         

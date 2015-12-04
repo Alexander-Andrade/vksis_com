@@ -120,7 +120,7 @@ class Station:
     def send(self,destAddr,data):
         #station can't send message to self
         if self.address == destAddr:
-            raise AddrError('fail send a message to self')
+            raise AddrError('fail to send a message to self')
         pack = Packet()
         #set frame monitor bit
         pack.monitor = self.isMonitor
