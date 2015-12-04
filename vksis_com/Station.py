@@ -24,6 +24,14 @@ class Packet:
             self.extractFrameInfo()
 
     @property
+    def Frame(self):
+        return self.frame
+    @Frame.setter
+    def Frame(self,frame):
+        self.frame = frame
+        self.extractFrameInfo()
+
+    @property
     def monitor(self):
         return self.FI[2]
 
@@ -79,14 +87,15 @@ class Station:
    
     def __init__(self):
         #ports to communicate with circle
-        self.prevPortName = 'COM2'
-        self.nextPortName = 'COM3'
+        self.prevPortName = None
+        self.nextPortName = None
         self.nextPort = None
         self.prevPort = None
         self.isMonitor = False
         self.address = None
 
-    def run(self,address,isMonitor):
+    def run(self,address,isMonitor,**portsDict):
+        self.prevPortName,self.nextPortName = portsDict.get(address)
         #if combobox is selected as monitor-> true else folse
         self.address = address
         self.isMonitor = isMonitor
@@ -151,7 +160,8 @@ class Station:
 
     def receive(self):
         #read until the FD
-        FD = self.bitStuffing.byteFD
+        pack = Packet()
+        FD = pack.bitStuffing.byteFD
         frame = []
         #finding packet beginning
         byte = None
@@ -165,7 +175,7 @@ class Station:
             frame.append(byte[0])
         #put last FD
         frame.append(byte[0])
-        packet = Packet(bytes(frame))
+        pack.Frame = bytes(frame)
         return packet
          
          

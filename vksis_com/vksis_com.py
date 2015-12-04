@@ -16,6 +16,9 @@ class Application(Frame):
         self.station = Station()
         #binds station name and com ports for it
         self.stations =  ['monitor', 'station_1', 'station_2']
+        self.portsDict = {self.stations[0] : ('COM2','COM3'),
+                          self.stations[1] : ('COM4','COM5'),
+                          self.stations[2] : ('COM6','COM7')} 
         self.__createWidgets()
 
 
@@ -56,7 +59,7 @@ class Application(Frame):
     def openPortsEvent(self):
         stationAddr =  self.stationsCombo.get()
         isMonitor = self.stations[0] == stationAddr
-        self.station.run(self.stationsCombo.get(),isMonitor)
+        self.station.run(self.stationsCombo.get(),isMonitor,self.portsDict)
 
     def sendEvent(self):
         msg = self.textbox.get('1.0',END)
@@ -64,33 +67,19 @@ class Application(Frame):
         
 
     def showPortData(self):
-        '''
         while True:
-            msg = self.protocol.receive().decode('utf-8')
+            msg = self.station.transit().decode('utf-8')
             #show
             self.textbox.delete('1.0',END) 
             self.textbox.insert('1.0',msg)
-        '''
+        
     
 
     def parallelShowPortData(self):
-        #readThread = threading.Thread(target=self.showPortData)
-        #readThread.start()
+        readThread = threading.Thread(target=self.showPortData)
+        readThread.start()
         pass
         
-    
-class MyClass:
-    
-    def __init__(self):
-        self.i = 5
-
-    @property
-    def I(self):
-        return self.i
-    
-    @I.setter
-    def I(self,val):
-        self.i = val + 5
      
 if __name__ == "__main__":
     root = Tk()
