@@ -175,8 +175,6 @@ class Station:
         while byte != FD:
             byte = self.prevPort.read(1)
             frame.append(byte[0])
-        #put last FD
-        frame.append(byte[0])
         pack.Frame = bytes(frame)
         return pack
          
