@@ -18,6 +18,7 @@ class Packet:
         self.frame = frame
         if not frame:
             self.FI = bitarray(8)
+            self.FI.setall(False)
             self.DA = None
             self.SA= None
         else:
@@ -36,7 +37,7 @@ class Packet:
         return self.FI[2]
 
     @monitor.setter
-    def frameInfoMonitor(self,value):
+    def monitor(self,value):
         self.FI[2] = value       
 
     @property
@@ -62,14 +63,14 @@ class Packet:
         payload  = self.hamming.encode(payload)
         # packet = FD + FI + DA + SA + payload + FD
         FD = self.bitStuffing.byteFD
-        packet = FD +   stufHamPayload + FD
-        self.frame =  packet + self.FI.tobytes() + self.DA + self.SA + payload + FD
+        packet = FD + self.FI.tobytes() + self.DA.to_bytes(1,byteorder = 'big') + self.SA.to_bytes(1,byteorder = 'big') + payload + FD
+        self.frame =  packet
         return self.frame
 
     def extractFrameInfo(self):
         self.FI = bitarray()
         self.FI.frombytes(self.frame[1])
-        self.DA = self.frame[2]
+        self.DA = int.from_bytes(self.frame[2])
         self.SA = self.frame[3]
 
 
@@ -89,26 +90,28 @@ class Station:
         #ports to communicate with circle
         self.prevPortName = None
         self.nextPortName = None
-        self.nextPort = None
-        self.prevPort = None
+        self.prevPort = serial.Serial()
+        self.nextPort = serial.Serial()
         self.isMonitor = False
         self.address = None
 
-    def run(self,address,isMonitor,**portsDict):
-        self.prevPortName,self.nextPortName = portsDict.get(address)
+    def run(self,address,isMonitor,ports):
+        self.prevPortName,self.nextPortName = ports
         #if combobox is selected as monitor-> true else folse
-        self.address = address
+        self.address = int(address)
         self.isMonitor = isMonitor
         #open ports
         '''
         The port is immediately opened on object creation, when a port is given.
         It is not opened when port is None and a successive call to open() will be needed.
         '''
-        self.prevPort = serial.Serial(self.prevPortName)
-        self.nextPort = serial.Serial(self.nextPortName)
+        self.prevPort.port = self.prevPortName
+        self.prevPort.open()
+        self.nextPort.port = self.nextPortName
+        self.nextPort.open()
 
    
-    def send(self,data,destAddr):
+    def send(self,destAddr,data):
         pack = Packet()
         #set frame monitor bit
         pack.monitor = self.isMonitor

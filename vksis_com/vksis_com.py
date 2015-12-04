@@ -15,10 +15,10 @@ class Application(Frame):
         self.pack()
         self.station = Station()
         #binds station name and com ports for it
-        self.stations =  ['monitor', 'station_1', 'station_2']
-        self.portsDict = {self.stations[0] : ('COM2','COM3'),
-                          self.stations[1] : ('COM4','COM5'),
-                          self.stations[2] : ('COM6','COM7')} 
+        self.stations =  [1, 2, 3]
+        self.portsDict = {self.stations[0] : ('COM3','COM2'),
+                          self.stations[1] : ('COM5','COM4'),
+                          self.stations[2] : ('COM7','COM6')} 
         self.__createWidgets()
 
 
@@ -40,6 +40,9 @@ class Application(Frame):
         #open port button
         self.openPortsBut = Button(self,text='open ports',command=self.openPortsEvent)
         self.openPortsBut.grid(column=0,row=1,sticky='nwse')
+        #open port label
+        self.openPortLabel = Label(self,text='closed',font='Arial 8')
+        self.openPortLabel.grid(column=2,row=1,sticky='w')
         #send button
         self.sendBut = Button(self,text="send",command=self.sendEvent)
         self.sendBut.grid(column=0,row=2,sticky='nwse')
@@ -58,12 +61,14 @@ class Application(Frame):
 
     def openPortsEvent(self):
         stationAddr =  self.stationsCombo.get()
-        isMonitor = self.stations[0] == stationAddr
-        self.station.run(self.stationsCombo.get(),isMonitor,self.portsDict)
+        isMonitor = self.stations[0] == int(stationAddr)
+        self.station.run(self.stationsCombo.get(),isMonitor,self.portsDict[int(stationAddr)])
+        self.openPortLabel['text'] = 'opened: ' + stationAddr
+        self.parallelShowPortData()
 
     def sendEvent(self):
         msg = self.textbox.get('1.0',END)
-        self.station.send(msg.encode('utf-8'))
+        self.station.send(int(self.addressCombo.get()),msg.encode('utf-8'))
         
 
     def showPortData(self):
@@ -78,13 +83,14 @@ class Application(Frame):
     def parallelShowPortData(self):
         readThread = threading.Thread(target=self.showPortData)
         readThread.start()
-        pass
         
      
 if __name__ == "__main__":
+    
     root = Tk()
     app = Application(master=root)
-    app.parallelShowPortData()
     app.mainloop()
     
+    #st = Station()
+    #st.run(1,True,('COM2','COM3'))
 
