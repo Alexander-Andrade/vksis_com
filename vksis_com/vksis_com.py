@@ -2,7 +2,7 @@
 from bitarray import*
 import threading
 from bit_stuffing import bit_stuffing
-from Station import Station
+from Station import*
 from tkinter import*
 from tkinter.ttk import*    #ovveride tkinter widgets
 from Hamming import Hamming
@@ -68,7 +68,10 @@ class Application(Frame):
 
     def sendEvent(self):
         msg = self.textbox.get('1.0',END)
-        self.station.send(int(self.addressCombo.get()),msg.encode('utf-8'))
+        try:
+            self.station.send(int(self.addressCombo.get()),msg.encode('utf-8'))
+        except AddrError:
+            pass
         
 
     def showPortData(self):

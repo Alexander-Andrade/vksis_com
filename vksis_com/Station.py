@@ -1,7 +1,10 @@
 ﻿import serial 
 from bit_stuffing import*
 from Hamming import*
-from multiprocessing import pool
+
+#station can't send message to self
+class AddrError(Exception):
+    pass
 
 class Packet:
     '''
@@ -115,6 +118,9 @@ class Station:
 
    
     def send(self,destAddr,data):
+        #station can't send message to self
+        if self.address == destAddr:
+            raise AddrError('fail send a message to self')
         pack = Packet()
         #set frame monitor bit
         pack.monitor = self.isMonitor
