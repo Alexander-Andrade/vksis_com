@@ -179,7 +179,7 @@ class Station:
         #put last FD
         frame.append(byte[0])
         pack.Frame = bytes(frame)
-        return packet
+        return pack
          
          
 
