@@ -75,8 +75,7 @@ class Packet:
 
 
     def unpack(self):
-        self.extractFrameInfo()
-        payload = frame[4 : len(self.frame)-1]
+        payload = self.frame[4 : len(self.frame)-1]
         #hemming decode
         payload = self.hamming.decode(bytes(payload))
         #bit stuffing decode
