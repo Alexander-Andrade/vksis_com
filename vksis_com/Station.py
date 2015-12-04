@@ -141,7 +141,7 @@ class Station:
             #swap DA and SA and send pack to sender
             pack.DA , pack.SA = pack.SA , pack.DA 
             #if monitor station, set M bit
-            pack.monitor = self.isMonitor
+            pack.monitor |= self.isMonitor
             #set address_recognized and frame_copied bits
             pack.addrRecognized = True
             pack.frameCopied = True
