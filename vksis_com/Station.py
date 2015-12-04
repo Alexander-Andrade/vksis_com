@@ -158,7 +158,7 @@ class Station:
             #else drop packet
         else:
             #if not monitor -> redirect always 
-            self.nextPort.write(pack)
+            self.nextPort.write(pack.frame)
 
     def receive(self):
         #read until the FD
