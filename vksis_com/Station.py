@@ -166,7 +166,7 @@ class Station:
         #if not monitor bit and station is monitor, set it
         if self.isMonitor and (not pack.monitor):
             pack.monitor = True
-            self.nextPort.write(pack)
+            self.nextPort.write(pack.frame)
             #else drop packet
         else:
             #if not monitor -> redirect always 

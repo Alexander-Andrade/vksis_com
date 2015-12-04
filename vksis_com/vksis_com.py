@@ -20,6 +20,7 @@ class Application(Frame):
                           self.stations[1] : ('COM5','COM4'),
                           self.stations[2] : ('COM7','COM6')} 
         self.__createWidgets()
+        self.flPortsOpen = False
 
 
     def __del__(self):
@@ -57,6 +58,9 @@ class Application(Frame):
         self.textbox = Text(self,height=12,width=64,font='Arial 8',wrap=WORD)
         self.textbox.focus_set()
         self.textbox.grid(column=0,row=4,columnspan=5)
+        #error Label
+        self.errorLabel = Label(self,text='no errors',font='Arial 8')
+        self.errorLabel.grid(column=0,row=5,sticky='w')
         
 
     def openPortsEvent(self):
@@ -64,14 +68,19 @@ class Application(Frame):
         isMonitor = self.stations[0] == int(stationAddr)
         self.station.run(self.stationsCombo.get(),isMonitor,self.portsDict[int(stationAddr)])
         self.openPortLabel['text'] = 'opened: ' + stationAddr
+        self.flPortsOpen = True
         self.parallelShowPortData()
 
     def sendEvent(self):
-        msg = self.textbox.get('1.0',END)
         try:
+            if not self.flPortsOpen:
+                raise serial.SerialException('ports are close')
+            msg = self.textbox.get('1.0',END)
             self.station.send(int(self.addressCombo.get()),msg.encode('utf-8'))
-        except AddrError:
-            pass
+            #all is clear
+            self.errorLabel['text'] = ''
+        except (serial.SerialException, AddrError) as e:
+            self.errorLabel['text'] = e
         
 
     def showPortData(self):
