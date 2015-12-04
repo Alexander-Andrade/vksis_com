@@ -1,5 +1,4 @@
 ﻿import sys  #for COM name
-import serial 
 from bitarray import*
 import threading
 from bit_stuffing import bit_stuffing
@@ -16,10 +15,7 @@ class Application(Frame):
         self.pack()
         self.station = Station()
         #binds station name and com ports for it
-        self.stations =  {'monitor':('COM2','COM3'),
-                          'station_1':('COM4','COM5'),
-                          'station_2':('COM6','COM7')
-                         }
+        self.stations =  ['monitor', 'station_1', 'station_2']
         self.__createWidgets()
 
 
@@ -31,9 +27,9 @@ class Application(Frame):
     def __createWidgets(self):
         self.grid()
         #statins combobox
-        self.stationsCombo = Combobox(self,values= list(self.stations.keys()))
+        self.stationsCombo = Combobox(self,values = self.stations)
         #set monitor at first
-        self.stationsCombo.set('monitor')
+        self.stationsCombo.set(self.stations[0])
         self.stationsCombo.grid(column=0,row=0,sticky='nwse')
         #stations label
         self.stationsLabel = Label(self,text='station',font='Arial 8')
@@ -45,8 +41,8 @@ class Application(Frame):
         self.sendBut = Button(self,text="send",command=self.sendEvent)
         self.sendBut.grid(column=0,row=2,sticky='nwse')
         #address combo 
-        self.addressCombo = Combobox(self,values=list(self.stations.keys()))
-        self.addressCombo.set('monitor')
+        self.addressCombo = Combobox(self,values=self.stations)
+        self.addressCombo.set(self.stations[0])
         self.addressCombo.grid(column=0,row=3,sticky='nwse')
         #address label
         self.addressLabel = Label(self,text='addressed to',font='Arial 8')
@@ -58,11 +54,13 @@ class Application(Frame):
         
 
     def openPortsEvent(self):
-        pass
+        stationAddr =  self.stationsCombo.get()
+        isMonitor = self.stations[0] == stationAddr
+        self.station.run(self.stationsCombo.get(),isMonitor)
 
     def sendEvent(self):
         msg = self.textbox.get('1.0',END)
-        self.protocol.send(msg.encode('utf-8'))
+        self.station.send(msg.encode('utf-8'))
         
 
     def showPortData(self):
@@ -79,37 +77,25 @@ class Application(Frame):
         #readThread = threading.Thread(target=self.showPortData)
         #readThread.start()
         pass
+        
+    
+class MyClass:
+    
+    def __init__(self):
+        self.i = 5
 
-
-def openSerialPort(name):
-
-    #comPortsList = serial.tools.list_ports.comports()
-    #portList = list(serial.tools.list_ports.comports())
-    #if any(name == port for port  in serial.tools.list_ports.comports()) != True:
-    #    raise serial.SerialException("there is no such port name")
-    '''
-    The port is immediately opened on object creation, when a port is given.
-    It is not opened when port is None and a successive call to open() will be needed.
-    '''
-    port = serial.Serial(name)
-    if port.isOpen() != True:
-        raise serial.SerialException("can't open the port")
-    return port
+    @property
+    def I(self):
+        return self.i
+    
+    @I.setter
+    def I(self,val):
+        self.i = val + 5
      
-         
 if __name__ == "__main__":
-    '''
-    if(len(sys.argv) < 2):
-        sys.exit(1)
-    try:
-        port = openSerialPort(sys.argv[1])
-    except serial.SerialException as e:
-        print(e.args[0])
-        sys.exit(1)
-    '''
     root = Tk()
     app = Application(master=root)
     app.parallelShowPortData()
     app.mainloop()
-
+    
 
