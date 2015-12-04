@@ -67,6 +67,10 @@ class Packet:
         self.frame =  packet
         return self.frame
 
+    def repack(self):
+        FD = self.bitStuffing.byteFD
+        self.frame = FD + self.FI.tobytes() + self.DA.to_bytes(1,byteorder = 'big') + self.SA.to_bytes(1,byteorder = 'big') + self.frame[4:len(self.frame)-1] + FD
+
     def extractFrameInfo(self):
         self.FI = bitarray()
         self.FI.frombytes(self.frame[1:2])
@@ -145,6 +149,8 @@ class Station:
             #set address_recognized and frame_copied bits
             pack.addrRecognized = True
             pack.frameCopied = True
+            #apply changes
+            pack.repack()
             self.nextPort.write(pack.frame)
             return pack.unpack()
         #else destroy packet
