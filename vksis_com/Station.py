@@ -69,9 +69,9 @@ class Packet:
 
     def extractFrameInfo(self):
         self.FI = bitarray()
-        self.FI.frombytes(self.frame[1])
-        self.DA = int.from_bytes(self.frame[2])
-        self.SA = self.frame[3]
+        self.FI.frombytes(self.frame[1:2])
+        self.DA = int.from_bytes(self.frame[2:3],byteorder='big')
+        self.SA = int.from_bytes(self.frame[3:4],byteorder='big')
 
 
     def unpack(self):
